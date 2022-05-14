@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather report</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <input
+          id="searchbox"
+          type="text"
+          placeholder="Search for where"
+          value="Bangkok"
+        />
+        <button onClick="getSearch()">Search</button>
+      </header>
+      <main>
+        <section class="information">
+          <div id="citys">Bangkok,</div>
+          <div id="locations">TH</div>
+          <div id="dates">Sat 14 May 2022</div>
+        </section>
+        <div class="details">
+          <div id="temp">30.0°c</div>
+          <div id="weather">Sunny</div>
+          <div id="range">27.0°c / 34.0°c</div>
+        </div>
+      </main>
+    </div>
+    <script>
+      const api = {
+        key: "fac5d92c8bedb7286c4c9701de5a5dd2",
+        url: "https://api.openweathermap.org/data/2.5/weather?q=",
+      };
+
+      function getSearch() {
+        let city = document.getElementById("searchbox").value;
+        getData(city);
+      }
+
+      // API Call
+      //   async function getdata() {
+      //     let response = await fetch(
+      //       "http://api.weatherapi.com/v1/current.json?key=3fd83aa239464ce3a5d124738221205&q=Bangkok&aqi=no"
+      //     );
+      //     console.log(response);
+      //     let data = await response.json();
+      //     return data;
+      //   }
+      //   getdata().then((data) => console.log(data));
+
+      const getData = (query) => {
+        axios
+          .get(`${api.url}${query}&appid=${api.key}`)
+          .then((response) => {
+            console.log(response.data);
+            displayData(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      };
+
+      const displayData = (res) => {
+        changeCitys(res.name);
+        changeLocations(res.sys.country);
+        changeTemp(res.main.temp);
+        changeTempHiLo(res.main.temp_min, res.main.temp_max);
+        changeWeather(res.weather[0].main);
+        //   Datetimer();
+        // console.log(res.main.temp);
+        // console.log(res.main.temp_max);
+        // console.log(res.main.temp_min);
+        dateTimer();
+      };
+
+      const changeCitys = (city) => {
+        document.getElementById("citys").innerHTML = city + ", ";
+      };
+      const changeLocations = (location) => {
+        document.getElementById("locations").innerHTML = location;
+      };
+
+      const dateTimer = () => {
+        const months = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        let dt = new Date();
+        let date = dt.getDate();
+        let day = days[dt.getDay()];
+        let month = months[dt.getMonth()];
+        let year = dt.getFullYear();
+
+        let calender = `${day} ${date} ${month} ${year}`;
+        document.querySelector("#dates").innerHTML = calender;
+        console.log(calender);
+      };
+
+      const changeTemp = (temp) => {
+        let cel = kelvinToCelsius(temp);
+        document.querySelector("#temp").innerHTML = cel;
+      };
+
+      const changeTempHiLo = (temp_l, temp_h) => {
+        let cel_l = kelvinToCelsius(temp_l);
+        let cel_h = kelvinToCelsius(temp_h);
+        document.querySelector("#range").innerHTML = cel_l + " / " + cel_h;
+      };
+
+      const kelvinToCelsius = (temp) => {
+        let celsius = temp - 273.15;
+        celsius = celsius.toFixed(1) + "°c";
+        return celsius;
+      };
+
+      const changeWeather = (weather) => {
+        document.querySelector("#weather").innerHTML = weather;
+      };
+    </script>
+  </body>
+</html>
